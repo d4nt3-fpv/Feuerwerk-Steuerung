@@ -3,6 +3,18 @@ from tkinter import *
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledText
+from tkinter import filedialog
+
+
+import serial.tools.list_ports
+
+ports = serial.tools.list_ports.comports()
+
+portsList = []
+for onePort in ports:
+    portsList.append(str(onePort))
+    print(str(onePort))
+
 
 
 root = ttk.Window(title="Johannes Feuerwerk", themename="darkly",resizable=(False,False))
@@ -10,7 +22,21 @@ root = ttk.Window(title="Johannes Feuerwerk", themename="darkly",resizable=(Fals
 headline = ttk.Label(root, text="Feuerwerk Steuerung", style="danger.TLabel", font=('Helvetica', 35))
 headline.grid(row=1, column=1, padx=10, pady=10)
 
+selectedPort = StringVar(root)
 
+videofilepath = StringVar(root)
+timecodefilepath = StringVar(root)
+
+def load_video_file():
+    filename = filedialog.askopenfilename()
+    print(filename)
+    videofilepath.set(filename)
+
+
+def load_timecode_file():
+    filename = filedialog.askopenfilename()
+    print(filename)
+    timecodefilepath.set(filename)
 
 
 ### Connect to Arduino frame
@@ -18,7 +44,7 @@ headline.grid(row=1, column=1, padx=10, pady=10)
 Connect_to_Arduino_frame = ttk.Labelframe(root, text='Connect to Arduino', style='info.TLabelframe')
 Connect_to_Arduino_frame.grid(row=2, column=1, padx=10, pady=15)
 
-select_Port_combobox = ttk.Combobox(Connect_to_Arduino_frame, state="readonly")
+select_Port_combobox = ttk.Combobox(Connect_to_Arduino_frame, values=portsList, state='readonly', textvariable=selectedPort)
 select_Port_combobox.grid(row=1, column=1, padx=5, pady=10)
 
 connect_to_arduino_button = ttk.Button(Connect_to_Arduino_frame, bootstyle="primary", text="Connect")
@@ -38,10 +64,10 @@ Load_show_files_frame.grid(row=3, column=1, padx=10, pady=15)
 video_file_path_lbl = ttk.Label(Load_show_files_frame, text="Load Video")
 video_file_path_lbl.grid(row=1, column=1, padx=5, pady=5)
 
-video_file_path_entry = ttk.Entry(Load_show_files_frame)
+video_file_path_entry = ttk.Entry(Load_show_files_frame, textvariable=videofilepath)
 video_file_path_entry.grid(row=1, column=2, padx=5, pady=5)
 
-video_file_path_browse_btn = ttk.Button(Load_show_files_frame, text="Browse")
+video_file_path_browse_btn = ttk.Button(Load_show_files_frame, text="Browse", command=load_video_file)
 video_file_path_browse_btn.grid(row=1, column=3, padx=5, pady=5)
 
 
@@ -49,10 +75,10 @@ video_file_path_browse_btn.grid(row=1, column=3, padx=5, pady=5)
 timecode_file_path_lbl = ttk.Label(Load_show_files_frame, text="Load Timecode")
 timecode_file_path_lbl.grid(row=2, column=1, padx=5, pady=5)
 
-timecode_file_path_entry = ttk.Entry(Load_show_files_frame)
+timecode_file_path_entry = ttk.Entry(Load_show_files_frame, textvariable=timecodefilepath)
 timecode_file_path_entry.grid(row=2, column=2, padx=5, pady=5)
 
-timecode_file_path_browse_btn = ttk.Button(Load_show_files_frame, text="Browse")
+timecode_file_path_browse_btn = ttk.Button(Load_show_files_frame, text="Browse", command=load_timecode_file)
 timecode_file_path_browse_btn.grid(row=2, column=3, padx=5, pady=5)
 
 
@@ -84,7 +110,5 @@ log_box.pack(fill=BOTH, expand=YES)
 
 
 log_box.insert(END, 'Insert your text here.')
-
-
 
 root.mainloop()
