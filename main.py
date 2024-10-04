@@ -9,6 +9,7 @@ import serial.tools.list_ports
 
 import vlc
 
+import csv
 
 
 ports = serial.tools.list_ports.comports()
@@ -41,6 +42,19 @@ selectedPort = StringVar(root)
 videofilepath = StringVar(root)
 timecodefilepath = StringVar(root)
 
+timecodepositions = []
+timecodecommands = []
+
+def csvreader(timecodefile):
+    with open(timecodefile, 'r') as file:
+        reader = csv.reader(file, delimiter=';')
+        for row in reader:
+            print(row)
+            timecodepositions.append(row[0])
+            timecodecommands.append(row[1])
+        print(timecodepositions)
+        print(timecodecommands)
+
 
 def connectbtnclick():
     sel_port = str(str(selectedPort.get()).split(" ")[0]).rstrip('\n').rstrip('\r')
@@ -59,12 +73,25 @@ def load_timecode_file():
     filename = filedialog.askopenfilename()
     print(filename)
     timecodefilepath.set(filename)
+    csvreader(filename)
 
 
 def start_show_btn_click():
     
     media = vlc.MediaPlayer(videofilepath.get())
     media.play()
+    lastindex = ""
+    while media.get_state() != vlc.State.Ended:
+        video_position = str(int(media.get_time() /1000))
+        # print(video_position)
+
+        if(video_position in timecodepositions):
+            index = timecodepositions.index(video_position)
+            if(lastindex != index):
+                print(timecodecommands[index])
+                lastindex = index
+                #send_string_to_arduino(timecodecommands[index])
+
 
 
 
