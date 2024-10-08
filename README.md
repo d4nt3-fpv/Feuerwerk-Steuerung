@@ -20,6 +20,4 @@ Beispiel:
 
 3;Raketen      (nach sekunde 3 wird der Befehl "Raketen" an den Arduino gesendet)
 
-## Credits
 
-Vielen Dank an Johannes, der mich auf die Idee gebracht hat, das ganze zu Programmieren!
