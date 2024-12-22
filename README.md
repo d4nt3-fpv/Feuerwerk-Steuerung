@@ -8,7 +8,7 @@ Wenn die Show gestartet wird spielt das Programm das Video ab und sendet an den 
 
 ## Benötigte Programme
 
-VLC Media Player muss installiert sein.
+VLC Media Player in der 64-Bit Version muss installiert sein.
 
 ## Wie ist die Timecode Datei aufgebaut?
 
