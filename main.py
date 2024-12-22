@@ -89,6 +89,8 @@ timecodecommands = []
 
 def csvreader(timecodefile):
     try:
+        timecodepositions.clear()
+        timecodecommands.clear()
         with open(timecodefile, 'r') as file:
             reader = csv.reader(file, delimiter=';')
             for row in reader:
@@ -178,7 +180,8 @@ def start_show_btn_click():
             lastindex = ""
             while media.get_state() != vlc.State.Ended:
                 video_position = str(int(media.get_time() /1000))
-                # print(video_position)
+                #video_position = str(int(media.get_time()))
+                print(video_position)
 
                 if(video_position in timecodepositions):
                     index = timecodepositions.index(video_position)
