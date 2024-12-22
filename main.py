@@ -5,10 +5,12 @@ from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledText
 from tkinter import filedialog
 from tkinter import messagebox
+import keyboard
 
 import serial.tools.list_ports
 
 import vlc
+
 
 import csv
 
@@ -65,7 +67,10 @@ log_box.pack(fill=BOTH, expand=YES)
 
 log_box.insert(END, "Application ready... \n")
 
-media = vlc.MediaPlayer()
+try:
+    media = vlc.MediaPlayer()
+except:
+    messagebox.showerror(title="Error initiating vlc media player", message="Error initiating vlc media player - Make shure you have the 64-Bit version of vlc-media player installed!")
 
 
 selectedPort = StringVar(root)
@@ -167,6 +172,8 @@ def start_show_btn_click():
         try:
             global media
             media = vlc.MediaPlayer(videofilepath.get())
+            media.set_fullscreen(True)
+            keyboard.add_hotkey("Esc", lambda: media.set_fullscreen(False))
             media.play()
             lastindex = ""
             while media.get_state() != vlc.State.Ended:
@@ -210,6 +217,8 @@ def simulate_show_btn_click():
     try:
         global media
         media = vlc.MediaPlayer(videofilepath.get())
+        media.set_fullscreen(True)
+        keyboard.add_hotkey("Esc", lambda: media.set_fullscreen(False))
         media.play()
         lastindex = ""
         while media.get_state() != vlc.State.Ended:
