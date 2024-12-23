@@ -17,7 +17,13 @@ Die Timecode Datei setzt sich zusammen aus einer Zeit und einem Befehl getrennt 
 Zeit[in sekunden];Befehl
 
 Beispiel:
-
+```
 3;Raketen      (nach sekunde 3 wird der Befehl "Raketen" an den Arduino gesendet)
+```
 
+Seit Version 4.0 werden auch float werte für die Zeit unterstützt. Diese werden vom Programm mit einer Gemauigkeit von 0,2s verarbeitet. Wichtig hierbei ist die verwendung des Punktes als Dezimaltrennzeichen.
 
+Beispiel:
+```
+3.4;Raketen      (nach sekunde 3,4 wird der Befehl "Raketen" an den Arduino gesendet)
+```
