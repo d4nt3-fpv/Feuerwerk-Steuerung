@@ -14,10 +14,14 @@ import vlc
 
 import csv
 
+import sys
+
 
 ports = serial.tools.list_ports.comports()
 
 connected_to_Arduino = False
+timecode_toleranz = 0.2  # Toleranz von 0.1 Sekunden
+
 
 portsList = []
 for onePort in ports:
@@ -95,7 +99,7 @@ def csvreader(timecodefile):
             reader = csv.reader(file, delimiter=';')
             for row in reader:
                 print(row)
-                timecodepositions.append(row[0])
+                timecodepositions.append(float(row[0]))
                 timecodecommands.append(row[1])
             print(timecodepositions)
             print(timecodecommands)
@@ -167,6 +171,7 @@ def load_timecode_file():
         messagebox.showerror(title="Timecode file load failed", message="Error loading Timecode file")
 
 def start_show_btn_click():
+    index = 0
     global connected_to_Arduino
     if (connected_to_Arduino == False):
         messagebox.showerror(title="Not connected", message="You need to connect to the Arduino first")
@@ -177,23 +182,24 @@ def start_show_btn_click():
             media.set_fullscreen(True)
             keyboard.add_hotkey("Esc", lambda: media.set_fullscreen(False))
             media.play()
-            lastindex = ""
+            last_index = 10000 # just a random number that is not 0
             while media.get_state() != vlc.State.Ended:
-                video_position = str(int(media.get_time() /1000))
-                #video_position = str(int(media.get_time()))
-                print(video_position)
-
-                if(video_position in timecodepositions):
-                    index = timecodepositions.index(video_position)
-                    if(lastindex != index):
-                        print(timecodecommands[index])
-                        lastindex = index
-                        send_string_to_arduino(timecodecommands[index])
-                        log_box.insert(END, "Command send to Arduino: ")
-                        log_box.insert(END, (str(timecodecommands[index]) + "\n"))
-                        log_box.insert(END, ("-------------" + "\n"))
-                else:
+                video_position = media.get_time() /1000.0
+                for index in range(len(timecodepositions)):
+                    if(index != last_index):
+                        vergleich_position = timecodepositions[index]  
+                        if abs(video_position - vergleich_position) <= timecode_toleranz:
+                                print(timecodecommands[index])
+                                print(f"Die aktuelle Videoposition {video_position} ist innerhalb der Toleranz")
+                                send_string_to_arduino(timecodecommands[index])
+                                log_box.insert(END, "Command send to Arduino: ")
+                                log_box.insert(END, (str(timecodecommands[index]) + "\n"))
+                                log_box.insert(END, ("-------------" + "\n"))
+                                last_index = index                                                  
+                        else:
+                            root.update()
                     root.update()
+                root.update()
 
         except Exception as e:
             print(e)
@@ -204,10 +210,12 @@ def start_show_btn_click():
 
 def stop_show_btn_click():
     try:
+        root.update()
         global media
         media.stop()
         log_box.insert(END, "Show stopped \n")
         log_box.insert(END, ("-------------" + "\n"))
+        root.update()
     except Exception as e:
         print(e)
         log_box.insert(END, "Show stop failed: \n")
@@ -217,33 +225,53 @@ def stop_show_btn_click():
 
 def simulate_show_btn_click():
 
+    index = 0
     try:
         global media
         media = vlc.MediaPlayer(videofilepath.get())
         media.set_fullscreen(True)
         keyboard.add_hotkey("Esc", lambda: media.set_fullscreen(False))
         media.play()
-        lastindex = ""
+        last_index = 10000 # just a random number that is not 0
         while media.get_state() != vlc.State.Ended:
-            video_position = str(int(media.get_time() /1000))
-            # print(video_position)
-
-            if(video_position in timecodepositions):
-                index = timecodepositions.index(video_position)
-                if(lastindex != index):
-                    print(timecodecommands[index])
-                    log_box.insert(END, "[Simulaton] Command send to Arduino: ")
-                    log_box.insert(END, (str(timecodecommands[index]) + "\n"))
-                    log_box.insert(END, ("-------------" + "\n"))
-                    lastindex = index
-            else:
+            video_position = media.get_time() /1000.0
+            for index in range(len(timecodepositions)):
+                if(index != last_index):
+                    vergleich_position = timecodepositions[index]  
+                    if abs(video_position - vergleich_position) <= timecode_toleranz:
+                            print(timecodecommands[index])
+                            print(f"Die aktuelle Videoposition {video_position} ist innerhalb der Toleranz")
+                            log_box.insert(END, "[Simulation] Command send to Arduino: ")
+                            log_box.insert(END, (str(timecodecommands[index]) + "\n"))
+                            log_box.insert(END, ("-------------" + "\n"))
+                            last_index = index                                                  
+                    else:
+                        root.update()
                 root.update()
+            root.update()
+
+        
     except Exception as e:
         print(e)
         log_box.insert(END, "Simulation failed: \n")
         log_box.insert(END, (str(e) + "\n"))
         log_box.insert(END, ("-------------" + "\n"))
         messagebox.showerror(title="Simualtion failed", message="Error playing the simulation: " + str(e))
+
+
+
+def on_close():
+    # Verzögere das Stoppen des Players, um das Fenster zu schließen
+    root.after(500, cleanup_and_quit)
+
+def cleanup_and_quit():
+    global media
+    del media
+    # del vlc_instance
+    root.destroy()
+    exit()
+    
+
 
 ### Connect to Arduino frame
 
@@ -305,6 +333,6 @@ reboot_Arduinos.grid(row=1, column=3, padx=5, pady=5)
 
 
 
-
+root.protocol("WM_DELETE_WINDOW", on_close)
 
 root.mainloop()
