@@ -200,6 +200,9 @@ def start_show_btn_click():
                             root.update()
                     root.update()
                 root.update()
+            media.set_fullscreen(False)
+            stop_show_btn_click()
+            root.update()
 
         except Exception as e:
             print(e)
@@ -212,6 +215,7 @@ def stop_show_btn_click():
     try:
         root.update()
         global media
+        media.set_fullscreen(False)
         media.stop()
         log_box.insert(END, "Show stopped \n")
         log_box.insert(END, ("-------------" + "\n"))
@@ -249,6 +253,9 @@ def simulate_show_btn_click():
                         root.update()
                 root.update()
             root.update()
+        media.set_fullscreen(False)
+        stop_show_btn_click()
+        root.update()
 
         
     except Exception as e:
