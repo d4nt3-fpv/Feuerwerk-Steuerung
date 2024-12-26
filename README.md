@@ -10,6 +10,10 @@ Wenn die Show gestartet wird spielt das Programm das Video ab und sendet an den 
 
 VLC Media Player in der 64-Bit Version muss installiert sein.
 
+## Wie kann man das Programm ausführen?
+Einfach die Feuerwerksteuerung.exe datei aus dem Releases bereich herunterladen und ausführen!
+
+
 ## Wie ist die Timecode Datei aufgebaut?
 
 Die Timecode Datei setzt sich zusammen aus einer Zeit und einem Befehl getrennt von einem symmikolon in jeder Zeile:
@@ -27,3 +31,4 @@ Beispiel:
 ```
 3.4;Raketen      (nach sekunde 3,4 wird der Befehl "Raketen" an den Arduino gesendet)
 ```
+
